@@ -1,0 +1,495 @@
+Data Analysis:
+HEX Analysis:
+4752 5550 77B0 7E00 4449 414C 0000 0000 184B 0E00 0000 0000 
+G R  U P  w °  ~ 00 D I  A L  0000 0000 18K  0E00 0000 0000
+         (77B0 7E00) <- Group size (including header for GRUP type) read from back to front, 007EB077, in decimal is 8302711
+                   ((D I A L)(0000 0000)(18)(K)(0E)(00)(0000 0000)) <- DIAL is label, first 0000 0000 is groupType, 18 is day (24 in decimal), K is month (75 in dec), 0E is lastUserID, 00 is currentUserID, second 0000 0000 is unknown
+
+This part in XML:
+<GRUP label="DIAL" groupType="0" day="24" month="75" lastUserID="14" currentUserID="0" unknown="0x00000000">
+
+
+HEX Analysis:
+4449 414C 3200 0000 0000 0000 3C0E 0000 0D69 0E00 2800 0100 504E 414D 0400 0000 4842 514E 414D 0400 2B37 0300 4441 5441 0400 0003 1700
+D I  A L  2 00 0000 0000 0000 < 0E 0000 0Di  0E00 ( 00 0100 P N  A M  0400 0000 H B  Q N  A M  0400 + 7  0300 D A  T A  0400 0003 1700
+         (3200 0000) <- group size not including header (in this case starts at PNAM) read from back to front, 00000032 or 50 in decimal
+                   (0000 0000) <- These are the flags, also read back to front, value is just 0x00000000
+                             (3C0E 0000) <- Read from back to front, so 00 00 0E 3C, this is the DIAL ID
+                                       (0D) <- This is the day, 13 in decimal
+                                         (69) <- This is the month, 105 indecimal
+                                            (0E) <- This is the last user id that accessed the form, 14
+                                              (00) <- This is the current user id accessing the form, 0
+                                                 (2800) <- Read from back to front so 0028, version info so version 40
+                                                      (0100) <- unknown, read from back to front so 0001, so is 0x0001
+                                                                          (0000 4842) <- LE float is 50, PNAM is 50
+                                                                                              (0400 (+ 7 0300)) <- The 2B37 0300 is in big (or little?) endian so it is actually 0003 372B (Read from back to front). This is the QNAM value
+                                                                                                                       (0400 (00)(03) (17)00) <- First (00) is flag, (03) is dialogueTab, (17) in decimal is 23, it is the subtypeID
+
+This part in XML:
+<DIAL flags="0x00000000" id="00000e3c" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+    <PNAM>50</PNAM>
+    <QNAM>0003372b</QNAM>
+    <DATA>
+    <struct flag="0x00" dialogueTab="3" subtypeID="23" unused="0x00" />
+    </DATA>
+
+
+HEX Analysis:
+534E 414D 0400 4849 545F 5449 4643 0400 0100 0000 4752 5550 4901 0000 3C0E 0000 0700 0000 1D68 5E00 2800 0000 494E 464F 1901 0000 0000 0000
+S N  A M  0400 H I  T _  T I  F C  0400 0100 0000 G R  U P  I 01 0000 < 0E 0000 0700 0000 1Dh  ^ 00 ( 00 0000 I N  F O  1901 0000 0000 0000
+         (0400 (H I T _)) <- The HIT_ is the value of SNAM
+                                  (0400 (0100 0000)) <- The 0100 0000 in parenthesis is the value of TIFC read backwards as a decimal, so 00000001 or 1
+                                                           (4901 0000) <- Group size (including header) 00000149 or 329 bytes
+                                                                     (3C0E 0000) <- Group label, read backwards so 0x00000E3C
+                                                                               (0700 0000) <- Group type, read backwards so 00000007 or 7 in decimal
+                                                                                         (1D) <- Day, 29
+                                                                                           (68) <- Month, 104
+                                                                                              (5E) <- lastUserID, 94
+                                                                                                (00) <- currentUserID, 0
+                                                                                                   (2800 0000) <- Unknown, backwards in hex so 0x00000028
+                                                                                                                       (1901 0000) <- info size excluding header, read backwards so 00000119 or 281
+                                                                                                                                 (0000 0000) <- info flags, read backwards as hex so 0x00000000
+
+This part in XML:
+    <SNAM>1599359304</SNAM>
+    <TIFC>1</TIFC>
+</DIAL>
+<GRUP label="0x00000e3c" groupType="7" day="29" month="104" lastUserID="94" currentUserID="0" unknown="0x00000028">
+    <INFO flags="0x00000000"
+
+
+HEX Analysis:
+3D0E 0000 1B69 5500 2800 0200 454E 414D 0400 0000 0000 434E 414D 0100 0054 5244 5418 0000 0000 0032 0000 0000 0000 0001 722C 20E9 E503 00
+= 0E 0000 1Bi  U 00 ( 00 0200 E N  A M  0400 0000 0000 C N  A M  0100 00T  R D  T 18 0000 0000 002  0000 0000 0000 0001 r ,  20é  å 03 00
+(3D0E 0000) <- info id, read backwards so 00000E3D
+         (1B) <- day, 27
+           (69) <- month, 69
+              (55) <- lastUserID, 85
+                (00) <- currentUserID, 0
+                   (2800) <- version, read back to front so 0028 or 40
+                        (0200) <- unknown, read back to front as hex so 0x0002
+                                       (0400) <- ENAM size excluding header, read backwards so 0004 or 4 bytes
+                                            (0000) <- ENAM flags read backwards in hex so 0x0000
+                                                 (0000) <- resetTime read backwards where FFFF = 24 hours and 0000 is 0 hours
+                                                                (0100) <- CNAM size, 1 byte
+                                                                     (00) <- Flavor level, in this case 0
+                                                                                 (18 00) <- TRDT size read backwards so 0018 or 24
+                                                                                      (00 0000 00) <- emotionType, read backwards so 0
+                                                                                                (32 0000 00) <- emotionValue, read backwards so 00000032 or 50
+                                                                                                          (00 0000 00) <- read backwards as hex, unknown and always zero so 0x00000000
+                                                                                                                    (01) <- responseID number
+                                                                                                                       (722C 20) <- unknown values, in the responseID group and represented as 3 1 byte hex values so [0x72, 0x2C, 0x20]
+                                                                                                                              (E9 E503 00) <- sound file, read backwards or 0003E5E9
+
+This part in XML:
+id="00000e3d" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+    <ENAM>
+        <struct flags="0x0000" resetTime="0" />
+    </ENAM>
+    <CNAM>0</CNAM>
+    <TRDT>
+        <struct emotionType="0" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0x72|0x2c|0x20" soundFile="0003e5e9"
+
+
+HEX Analysis:
+01 722C 204E 414D 3104 00BF 2601 004E 414D 3215 0042 4C41 4E4B 204C 494E 452D 204E 4F20 4155 4449 4F00 4E41 4D33 0100 0043 5444 41
+01 r ,  20N  A M  1 04 00¿  & 01 00N  A M  2 15 00B  L A  N K  20L  I N  E -  20N  O 20 A U  D I  O 00 N A  M 3  0100 00C  T D  A
+(01) <- useEmotionAnimation value, 1
+  (722C 20) <- unknown values, in the responseID group and represented as 3 1 byte hex values so [0x72, 0x2C, 0x20]
+                   (04 00) <- NAM1 size excluding header and read backwards so 0004 or 4 bytes
+                        (BF 2601 00) <- actual dialogue data ID, read backwards and converted to decimal so 000126BF or 75455, does not need to be converted and can simply look up BF260100 in the String directory entries
+                                            (15 00) <- NAM2 size excluding header read backwards so 0015 or 21
+                                                 (42 4C41 4E4B 204C 494E 452D 204E 4F20 4155 4449 4F00) <- NAM2 data, convert to ASCII to get BLANK LINE- NO AUDIO, the 00 at the end is an escape character
+                                                                                                                (0100) <- NAM3 size read backwards so 1
+                                                                                                                     (00) <- NAM3 content, in this case just the escape character
+
+This part in XML:
+useEmotionAnimation="1" unknown2="0x72|0x2c|0x20" />
+    </TRDT>
+    <NAM1>75455</NAM1>
+    <NAM2>BLANK LINE- NO AUDIO</NAM2>
+    <NAM3></NAM3>
+    <CTDA>
+
+
+HEX Analysis:
+20 0080 7E53 2300 008C 423A 0055 122B 3703 0000 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080 3F48 0055 1207 0000 00
+20 00  ~ S  # 00 008C B :  00U  12+  7 03 0000 0000 0000 0000 0000 0000 00ÿ  ÿ ÿ  ÿ C  T D  A 20 0001 ~ S  # 00 00  ? H  00U  1207 0000 00
+(20 00) <- CTDA size excluding header read backwards so 0020 or 32
+    (80) <- read as hex, operator of the conditional so 0x80
+       (7E53 23) <- unknown values, in the responseID group and represented as 3 1 byte hex values so [0x7E, 0x53, 0x23]
+              (00 008C 42) <- comparisonValueFloat, so 70
+                        (3A 00) <- functionIndex read backwards so 003A or 58
+                             (55 12) <- padding info in hex as 2 1 byte hex values so [0x55, 0x12]
+                                  (2B 3703 00) <- parameter 1 read backwards as hex so 0x0003372B
+                                            (00 0000 00) <- param2 read backwas as hex so 0x00000000
+                                                      (00 0000 00) <- runOnType read backwards converted to decimal so 0
+                                                                (00 0000 00) <- formid for the reference in this case 00000000
+                                                                          (FF FFFF FF) <- unknown data read backwards as hex so 0xFFFFFFFF
+
+This part in XML:
+    <operator>0x80</operator>
+    <unknown0>0x7e,0x53,0x23</unknown0>
+    <comparisonValueFloat>70</comparisonValueFloat>
+    <functionIndex>58</functionIndex>
+    <padding>0x55,0x12</padding>
+    <param1>0x0003372b</param1>
+    <param2>0x00000000</param2>
+    <runOnType>0</runOnType>
+    <reference>00000000</reference>
+    <unknown1>0xffffffff</unknown1>
+</CTDA>
+<CTDA>
+    <operator>0x01</operator>
+    <unknown0>0x7e,0x53,0x23</unknown0>
+    <comparisonValueFloat>1</comparisonValueFloat>
+    <functionIndex>72</functionIndex>
+    <padding>0x55,0x12</padding>
+    <param1>0x00000007</param1>
+
+
+HEX Analysis:
+00 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080 3F47 0055 121B 4906 0000 0000 0000 0000 0000 0000 00FF FFFF FF
+00 0000 0000 0000 0000 0000 00ÿ  ÿ ÿ  ÿ C  T D  A 20 0001 ~ S  # 00 00  ? G  00U  121B I 06 0000 0000 0000 0000 0000 0000 00ÿ  ÿ ÿ  ÿ
+
+This part in XML:
+    <param2>0x00000000</param2>
+    <runOnType>0</runOnType>
+    <reference>00000000</reference>
+    <unknown1>0xffffffff</unknown1>
+</CTDA>
+<CTDA>
+    <operator>0x01</operator>
+    <unknown0>0x7e,0x53,0x23</unknown0>
+    <comparisonValueFloat>1</comparisonValueFloat>
+    <functionIndex>71</functionIndex>
+    <padding>0x55,0x12</padding>
+    <param1>0x0006491b</param1>
+    <param2>0x00000000</param2>
+    <runOnType>0</runOnType>
+    <reference>00000000</reference>
+    <unknown1>0xffffffff</unknown1>
+</CTDA>
+
+
+HEX Analysis:
+43 5444 4120 0001 7E53 2300 0080 3F47 0055 121A 4906 0000 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080 3F
+C  T D  A 20 0001 ~ S  # 00 00  ? G  00U  121A I 06 0000 0000 0000 0000 0000 0000 00ÿ  ÿ ÿ  ÿ C  T D  A 20 0001 ~ S  # 00 00  ?
+
+This part in XML:
+<CTDA>
+    <operator>0x01</operator>
+    <unknown0>0x7e,0x53,0x23</unknown0>
+    <comparisonValueFloat>1</comparisonValueFloat>
+    <functionIndex>71</functionIndex>
+    <padding>0x55,0x12</padding>
+    <param1>0x0006491a</param1>
+    <param2>0x00000000</param2>
+    <runOnType>0</runOnType>
+    <reference>00000000</reference>
+    <unknown1>0xffffffff</unknown1>
+</CTDA>
+<CTDA>
+    <operator>0x01</operator>
+    <unknown0>0x7e,0x53,0x23</unknown0>
+    <comparisonValueFloat>1</comparisonValueFloat>
+
+
+HEX Analysis:
+48 0055 124D 4101 0000 0000 0000 0000 0000 0000 00FF FFFF FF
+H  00U  12M  A 01 0000 0000 0000 0000 0000 0000 00ÿ  ÿ ÿ  ÿ
+This part in XML:
+    <functionIndex>72</functionIndex>
+    <padding>0x55,0x12</padding>
+    <param1>0x0001414d</param1>
+    <param2>0x00000000</param2>
+    <runOnType>0</runOnType>
+    <reference>00000000</reference>
+    <unknown1>0xffffffff</unknown1>
+</CTDA>
+
+
+
+
+
+Beginning dialogue group:
+HEX:
+4752 5550 77B0 7E00 4449 414C 0000 0000 184B 0E00 0000 0000
+XML:
+<GRUP label="DIAL" groupType="0" day="24" month="75" lastUserID="14" currentUserID="0" unknown="0x00000000">
+
+BLUE:
+HEX:
+4449 414C 3200 0000 0000 0000 3C0E 0000 0D69 0E00 2800 0100 504E 414D 0400 0000 4842 514E 414D 0400 2B37 0300 4441 5441 0400 0003 1700
+534E 414D 0400 4849 545F 5449 4643 0400 0100 0000 4752 5550 4901 0000 3C0E 0000 0700 0000 1D68 5E00 2800 0000 494E 464F 1901 0000 0000
+0000 3D0E 0000 1B69 5500 2800 0200 454E 414D 0400 0000 0000 434E 414D 0100 0054 5244 5418 0000 0000 0032 0000 0000 0000 0001 722C 20E9
+E503 0001 722C 204E 414D 3104 00BF 2601 004E 414D 3215 0042 4C41 4E4B 204C 494E 452D 204E 4F20 4155 4449 4F00 4E41 4D33 0100 0043 5444
+4120 0080 7E53 2300 008C 423A 0055 122B 3703 0000 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080 3F48 0055 1207
+0000 0000 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080 3F47 0055 121B 4906 0000 0000 0000 0000 0000 0000 00FF
+FFFF FF43 5444 4120 0001 7E53 2300 0080 3F47 0055 121A 4906 0000 0000 0000 0000 0000 0000 00FF FFFF FF43 5444 4120 0001 7E53 2300 0080
+3F48 0055 124D 4101 0000 0000 0000 0000 0000 0000 00FF FFFF FF
+XML:
+    <DIAL flags="0x00000000" id="00000e3c" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>50</PNAM>
+      <QNAM>0003372b</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="3" subtypeID="23" unused="0x00" />
+      </DATA>
+      <SNAM>1599359304</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x00000e3c" groupType="7" day="29" month="104" lastUserID="94" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00000e3d" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0000" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="0" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0x72|0x2c|0x20" soundFile="0003e5e9" useEmotionAnimation="1" unknown2="0x72|0x2c|0x20" />
+        </TRDT>
+        <NAM1>75455</NAM1>
+        <NAM2>BLANK LINE- NO AUDIO</NAM2>
+        <NAM3></NAM3>
+        <CTDA>
+          <operator>0x80</operator>
+          <unknown0>0x7e,0x53,0x23</unknown0>
+          <comparisonValueFloat>70</comparisonValueFloat>
+          <functionIndex>58</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0003372b</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+        <CTDA>
+          <operator>0x01</operator>
+          <unknown0>0x7e,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>72</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x00000007</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+        <CTDA>
+          <operator>0x01</operator>
+          <unknown0>0x7e,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>71</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0006491b</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+        <CTDA>
+          <operator>0x01</operator>
+          <unknown0>0x7e,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>71</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0006491a</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+        <CTDA>
+          <operator>0x01</operator>
+          <unknown0>0x7e,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>72</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0001414d</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+      </INFO>
+    </GRUP>
+
+RED:
+HEX:
+4449 414C 3200 0000 0000 0000 420E 0000 0D69 0E00 2800 0100 504E 414D 0400 0000 A042 514E 414D 0400 460E 0000 4441 5441 0400 0003 1700
+534E 414D 0400 4849 545F 5449 4643 0400 0100 0000 4752 5550 9D00 0000 420E 0000 0700 0000 1D68 2700 2800 0000 494E 464F 6D00 0000 0000
+0000 450E 0000 1B69 5500 2800 0200 454E 414D 0400 0008 0000 434E 414D 0100 0054 5244 5418 0000 0000 0032 0000 0000 0000 0001 756E 6748
+0E00 0000 4475 6E4E 414D 3104 00BC 2601 004E 414D 3201 0000 4E41 4D33 0100 0043 5444 4120 0000 7F53 2300 0080 3FAA 0155 12E6 F201 0000
+0000 0000 0000 0000 0000 00FF FFFF FF
+XML:
+    <DIAL flags="0x00000000" id="00000e42" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>80</PNAM>
+      <QNAM>00000e46</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="3" subtypeID="23" unused="0x00" />
+      </DATA>
+      <SNAM>1599359304</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x00000e42" groupType="7" day="29" month="104" lastUserID="39" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00000e45" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0800" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="0" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0x75|0x6e|0x67" soundFile="00000e48" useEmotionAnimation="0" unknown2="0x44|0x75|0x6e" />
+        </TRDT>
+        <NAM1>75452</NAM1>
+        <NAM2></NAM2>
+        <NAM3></NAM3>
+        <CTDA>
+          <operator>0x00</operator>
+          <unknown0>0x7f,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>426</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0001f2e6</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+      </INFO>
+    </GRUP>
+
+YELLOW:
+HEX:
+4449 414C 3200 0000 0000 0000 430E 0000 0D69 0E00 2800 0100 504E 414D 0400 0000 A042 514E 414D 0400 460E 0000 4441 5441 0400 0003 1B00
+534E 414D 0400 4445 5448 5449 4643 0400 0100 0000 4752 5550 9D00 0000 430E 0000 0700 0000 1D68 2700 2800 0000 494E 464F 6D00 0000 0000
+0000 440E 0000 1B69 5500 2800 0200 454E 414D 0400 0008 0000 434E 414D 0100 0054 5244 5418 0000 0000 0032 0000 0000 0000 0001 B3A8 1447
+0E00 0000 B9A8 144E 414D 3104 00BD 2601 004E 414D 3201 0000 4E41 4D33 0100 0043 5444 4120 0000 7F53 2300 0080 3FAA 0155 12E6 F201 0000
+0000 0000 0000 0000 0000 00FF FFFF FF
+XML:
+    <DIAL flags="0x00000000" id="00000e43" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>80</PNAM>
+      <QNAM>00000e46</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="3" subtypeID="27" unused="0x00" />
+      </DATA>
+      <SNAM>1213482308</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x00000e43" groupType="7" day="29" month="104" lastUserID="39" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00000e44" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0800" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="0" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0xb3|0xa8|0x14" soundFile="00000e47" useEmotionAnimation="0" unknown2="0xb9|0xa8|0x14" />
+        </TRDT>
+        <NAM1>75453</NAM1>
+        <NAM2></NAM2>
+        <NAM3></NAM3>
+        <CTDA>
+          <operator>0x00</operator>
+          <unknown0>0x7f,0x53,0x23</unknown0>
+          <comparisonValueFloat>1</comparisonValueFloat>
+          <functionIndex>426</functionIndex>
+          <padding>0x55,0x12</padding>
+          <param1>0x0001f2e6</param1>
+          <param2>0x00000000</param2>
+          <runOnType>0</runOnType>
+          <reference>00000000</reference>
+          <unknown1>0xffffffff</unknown1>
+        </CTDA>
+      </INFO>
+    </GRUP>
+
+GREEN:
+HEX:
+4449 414C 3200 0000 0000 0000 0A31 0100 0D69 0E00 2800 0100 504E 414D 0400 0000 4842 514E 414D 0400 9261 0300 4441 5441 0400 0002 0E00
+534E 414D 0400 5343 454E 5449 4643 0400 0100 0000 4752 5550 8000 0000 0A31 0100 0700 0000 1753 2300 2800 0000 494E 464F 5000 0000 0000
+0000 1531 0100 1B69 5500 2800 0200 454E 414D 0400 0000 0000 434E 414D 0100 0054 5244 5418 0006 0000 0032 0000 0000 0000 0001 0000 0000
+0000 0001 0000 004E 414D 3104 0028 7800 004E 414D 320A 0065 7863 6974 6564 6C79 004E 414D 3301 0000
+XML:
+    <DIAL flags="0x00000000" id="0001310a" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>50</PNAM>
+      <QNAM>00036192</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="2" subtypeID="14" unused="0x00" />
+      </DATA>
+      <SNAM>1313162067</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x0001310a" groupType="7" day="23" month="83" lastUserID="35" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00013115" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0000" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="6" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0x00|0x00|0x00" soundFile="00000000" useEmotionAnimation="1" unknown2="0x00|0x00|0x00" />
+        </TRDT>
+        <NAM1>30760</NAM1>
+        <NAM2>excitedly</NAM2>
+        <NAM3></NAM3>
+      </INFO>
+    </GRUP>
+
+TEAL:
+HEX:
+4449 414C 3200 0000 0000 0000 0B31 0100 0D69 0E00 2800 0100 504E 414D 0400 0000 4842 514E 414D 0400 9261 0300 4441 5441 0400 0002 0E00
+534E 414D 0400 5343 454E 5449 4643 0400 0100 0000 4752 5550 8B00 0000 0B31 0100 0700 0000 1753 2300 2800 0000 494E 464F 5B00 0000 0000
+0000 1931 0100 1B69 5500 2800 0200 454E 414D 0400 0000 0000 434E 414D 0100 0054 5244 5418 0005 0000 0019 0000 0000 0000 0001 32CB 0400
+0000 0001 0000 004E 414D 3104 0044 B200 004E 414D 3215 0077 6974 6820 6765 6E75 696E 6520 7265 7370 6563 7400 4E41 4D33 0100 00
+XML:
+    <DIAL flags="0x00000000" id="0001310b" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>50</PNAM>
+      <QNAM>00036192</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="2" subtypeID="14" unused="0x00" />
+      </DATA>
+      <SNAM>1313162067</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x0001310b" groupType="7" day="23" month="83" lastUserID="35" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00013119" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0000" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="5" emotionValue="25" unknown0="0x00000000" id="1" unknown1="0x32|0xcb|0x04" soundFile="00000000" useEmotionAnimation="1" unknown2="0x00|0x00|0x00" />
+        </TRDT>
+        <NAM1>45636</NAM1>
+        <NAM2>with genuine respect</NAM2>
+        <NAM3></NAM3>
+      </INFO>
+    </GRUP>
+
+PINK:
+HEX:
+4449 414C 3200 0000 0000 0000 0C31 0100 0D69 0E00 2800 0100 504E 414D 0400 0000 4842 514E 414D 0400 9261 0300 4441 5441 0400 0002 0E00
+534E 414D 0400 5343 454E 5449 4643 0400 0100 0000 4752 5550 7700 0000 0C31 0100 0700 0000 1753 2300 2800 0000 494E 464F 4700 0000 0000
+0000 1431 0100 1B69 5500 2800 0200 454E 414D 0400 0000 0000 434E 414D 0100 0054 5244 5418 0005 0000 0032 0000 0000 0000 0001 0000 0000
+0000 0001 0000 004E 414D 3104 006B C100 004E 414D 3201 0000 4E41 4D33 0100 00
+XML:
+    <DIAL flags="0x00000000" id="0001310c" day="13" month="105" lastUserID="14" currentUserID="0" version="40" unknown="0x0001">
+      <PNAM>50</PNAM>
+      <QNAM>00036192</QNAM>
+      <DATA>
+        <struct flag="0x00" dialogueTab="2" subtypeID="14" unused="0x00" />
+      </DATA>
+      <SNAM>1313162067</SNAM>
+      <TIFC>1</TIFC>
+    </DIAL>
+    <GRUP label="0x0001310c" groupType="7" day="23" month="83" lastUserID="35" currentUserID="0" unknown="0x00000028">
+      <INFO flags="0x00000000" id="00013114" day="27" month="105" lastUserID="85" currentUserID="0" version="40" unknown="0x0002">
+        <ENAM>
+          <struct flags="0x0000" resetTime="0" />
+        </ENAM>
+        <CNAM>0</CNAM>
+        <TRDT>
+          <struct emotionType="5" emotionValue="50" unknown0="0x00000000" id="1" unknown1="0x00|0x00|0x00" soundFile="00000000" useEmotionAnimation="1" unknown2="0x00|0x00|0x00" />
+        </TRDT>
+        <NAM1>49515</NAM1>
+        <NAM2></NAM2>
+        <NAM3></NAM3>
+      </INFO>
+    </GRUP>

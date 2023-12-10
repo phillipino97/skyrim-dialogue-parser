@@ -1,0 +1,15 @@
+[package]
+name = "skyrim-dialogue-parser"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+colored = {version = "2.0.4"}
+peak_alloc = { version = "0.2.0"}
+serde_json = { version = "1.0.108", features = [] }
+serde = { version = "1.0.190", features = ["derive"] }
+typetag = "0.2.13"
+dyn-clone = "1.0.16"
+log = "0.4.20"
