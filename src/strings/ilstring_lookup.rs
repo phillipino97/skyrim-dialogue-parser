@@ -1,6 +1,6 @@
 use std::fs;
 use std::collections::HashMap;
-use std::time::Instant;
+//use std::time::Instant;
 
 struct FileData {
     pub dialogue_count: i32,
@@ -10,7 +10,7 @@ struct FileData {
 }
 
 pub fn get_ilstring_data(file_path: String) -> Result<HashMap<u32, String>, String> {
-    let now = Instant::now();
+    //let now = Instant::now();
     match fs::read(file_path) {
         Ok(bytes) => {
             let mut information = FileData {
@@ -33,7 +33,7 @@ pub fn get_ilstring_data(file_path: String) -> Result<HashMap<u32, String>, Stri
                 x += 1;
             }
             information.data = bytes[data_start.try_into().unwrap()..file_size.try_into().unwrap()].to_vec();
-            println!("ILSTRING DATA INFO\nFile Size: {}, Dialogue Count: {}, Data Offset: {}, Data Start: {}", file_size, information.dialogue_count, data_offset, data_start);
+            //println!("ILSTRING DATA INFO\nFile Size: {}, Dialogue Count: {}, Data Offset: {}, Data Start: {}", file_size, information.dialogue_count, data_offset, data_start);
 
             let mut final_information: HashMap<u32, String> = HashMap::new();
 
@@ -44,8 +44,8 @@ pub fn get_ilstring_data(file_path: String) -> Result<HashMap<u32, String>, Stri
                 final_information.insert(information.directory_id[i], String::from_utf8(line_data.to_vec()).unwrap());
             }
 
-            let elapsed = now.elapsed();
-            println!("Time to process ILSTRING data: {:.2?}\n\n", elapsed);
+            //let elapsed = now.elapsed();
+            //println!("Time to process ILSTRING data: {:.2?}\n\n", elapsed);
 
             Ok(final_information)
         }

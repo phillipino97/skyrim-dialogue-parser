@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::os::unix::fs::FileExt;
+use std::process::exit;
 use serde::{Deserialize, Serialize};
 use super::field_parser;
 use super::esm_parser;
@@ -47,7 +48,11 @@ pub fn get_record(file: &File, data: [u8; 24], data_location: u64, ilstring_data
     };
 
     let mut field_data = vec![0u8; record_data.size_of_data_field as usize];
-    file.read_exact_at(&mut field_data, data_location + 24).expect("TODO: panic message");
+    let check = file.read_exact_at(&mut field_data, data_location + 24);
+
+    if let Err(_err) = check {
+        exit(5);
+    }
 
     if !record_data.compressed {
         record_data.fields = Option::from(field_parser::get_fields(field_data, data_location + 24, &record_data._type, ilstring_data, string_data));

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::os::unix::fs::FileExt;
+use std::process::exit;
 use super::record_parser;
 use super::esm_parser;
 use serde::{Serialize, Deserialize};
@@ -49,7 +50,11 @@ pub fn get_group_data(file: &File, grup: &SkyrimGroup, ilstring_data: &HashMap<u
     
     while index < (grup.location + grup.size_of_group as u64) {
         let mut buf = vec![0u8; 24];
-        file.read_exact_at(&mut buf, index).expect("TODO: panic message");
+        let check = file.read_exact_at(&mut buf, index);
+
+        if let Err(_err) = check {
+            exit(3);
+        }
 
         let mut iter_data = SkyrimGroupData { record: None, group: None };
 
@@ -76,7 +81,11 @@ pub fn get_top_level_groups(file: &File, location: u64) -> Vec<SkyrimGroup> {
     while location_index < file.metadata().unwrap().len() as usize {
         let index = 0;
         let mut data = vec![0u8; 24];
-        file.read_exact_at(&mut data, location_index as u64).expect("TODO: panic message");
+        let check = file.read_exact_at(&mut data, location_index as u64);
+
+        if let Err(_err) = check {
+            exit(4);
+        }
 
         let size = u32::from_le_bytes(data[index + 4..index + 8].try_into().unwrap());
         final_groups.push(get_group_info(data, location_index as u64, size));

@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
-use std::time::Instant;
+use std::process::exit;
+//use std::time::Instant;
 use serde::{Deserialize, Serialize};
 use super::{grup_parser, record_parser};
-use serde_json;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SkyrimTimeStamp {
@@ -25,17 +25,22 @@ pub struct TopLevelData {
 }
 
 pub fn get_top_level_data(file_path: &String, ilstring_data: &HashMap<u32, String>, string_data: &HashMap<u32, String>) -> TopLevelData {
-    let now = Instant::now();
+    //let now = Instant::now();
     let mut esm: File = File::open(file_path).unwrap();
 
     let mut buf = vec![0u8; 24];
-    esm.read_exact(&mut buf).expect("TODO: panic message");
 
-    let mut tes4_record = record_parser::get_record(&esm, buf.try_into().unwrap(), 0, ilstring_data, string_data);
+    let check = esm.read_exact(&mut buf);
+
+    if let Err(_err) = check {
+        exit(2);
+    }
+
+    let tes4_record = record_parser::get_record(&esm, buf.try_into().unwrap(), 0, ilstring_data, string_data);
     let top_level_groups = grup_parser::get_top_level_groups(&esm, (24 + tes4_record.size_of_data_field) as u64);
 
-    let elapsed = now.elapsed();
-    println!("Time to process Top Level ES* data: {:.2?}\n\n", elapsed);
+    //let elapsed = now.elapsed();
+    //println!("Time to process Top Level ES* data: {:.2?}\n\n", elapsed);
 
     return TopLevelData {
         top_level_record: tes4_record,
@@ -44,8 +49,8 @@ pub fn get_top_level_data(file_path: &String, ilstring_data: &HashMap<u32, Strin
 }
 
 pub fn get_dial_group_data(file_path: &String, top_level_data: TopLevelData, ilstring_data: &HashMap<u32, String>, string_data: &HashMap<u32, String>) -> grup_parser::SkyrimGroup {
-    let now = Instant::now();
-    let mut esm: File = File::open(file_path).unwrap();
+    //let now = Instant::now();
+    let esm: File = File::open(file_path).unwrap();
     let mut dial_data: grup_parser::SkyrimGroup = grup_parser::SkyrimGroup {
         location: 0,
         size_of_group: 0,
@@ -72,8 +77,8 @@ pub fn get_dial_group_data(file_path: &String, top_level_data: TopLevelData, ils
     dial_data.data[1].serialize(&mut ser).unwrap();
     println!("{}", String::from_utf8(buf).unwrap());*/
 
-    let elapsed = now.elapsed();
-    println!("Time to process Group data: {:.2?}\n\n", elapsed);
+    //let elapsed = now.elapsed();
+    //println!("Time to process Group data: {:.2?}\n\n", elapsed);
     
     return dial_data
 }

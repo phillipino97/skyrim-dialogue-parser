@@ -1,5 +1,5 @@
 use std::{env, io::Write, process::exit};
-use colored::Colorize;
+//use colored::Colorize;
 use peak_alloc::PeakAlloc;
 use serde::Serialize;
 
@@ -125,8 +125,8 @@ fn main() {
     let esm_data = parsers::esm_parser::get_top_level_data(&esm_file, &finished_ilstring_data, &finished_string_data);
     let dial_data = parsers::esm_parser::get_dial_group_data(&esm_file, esm_data, &finished_ilstring_data, &finished_string_data);
 
-    let current_mem = PEAK_ALLOC.current_usage_as_mb();
-	println!("This program currently uses {} MB of RAM.\n\n", current_mem.to_string().red());
+    //let current_mem = PEAK_ALLOC.current_usage_as_mb();
+	//println!("This program currently uses {} MB of RAM.\n\n", current_mem.to_string().red());
 
     let mut buf = Vec::new();
     let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
@@ -134,7 +134,13 @@ fn main() {
     dial_data.serialize(&mut ser).unwrap();
     //println!("{}", String::from_utf8(buf).unwrap());
     let mut file = std::fs::File::create(dir + &*output).unwrap();
-    file.write_all(String::from_utf8(buf).unwrap().as_bytes()).expect("TODO: panic message");
+    let check = file.write_all(String::from_utf8(buf).unwrap().as_bytes());
+
+    if let Err(_err) = check {
+        exit(1);
+    }
+
+    exit(0)
 
     /*let mut s = String::new();
 
